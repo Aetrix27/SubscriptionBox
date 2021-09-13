@@ -13,19 +13,26 @@ class ViewController: UIViewController {
 
     private let pageControl: UIPageControl = {
         let pageControl = UIPageControl()
-        pageControl.numberOfPages = 5
+        pageControl.numberOfPages = 3
         pageControl.backgroundColor = .systemBlue
         return pageControl
     }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        pageControl.addTarget(self, action: #selector(pageControlDidChange(_ :)),
+                              for: .valueChanged)
         //scrollView.backgroundColor = .red
         view.addSubview(scrollView)
         view.addSubview(pageControl)
         // Do any additional setup after loading the view.
     }
     
+    @objc private func pageControlDidChange(_ sender: UIPageControl){
+        let current = sender.currentPage
+        scrollView.setContentOffset(CGPoint(x: CGFloat(current) * view.frame.size.width, y: 0), animated: true)
+    }
+        
     override func viewDidLayoutSubviews(){
         super.viewDidLayoutSubviews()
         pageControl.frame = CGRect(x:10, y: view.frame.size.height-100, width: view.frame.size.width-20, height:70)
@@ -36,12 +43,36 @@ class ViewController: UIViewController {
         }
     }
     private func configureScrollView(){
+        //gradient layer
+        let colors = [[UIColor.orange.cgColor, UIColor.yellow.cgColor], [UIColor.green.cgColor, UIColor.red.cgColor], [UIColor.blue.cgColor, UIColor.lightGray.cgColor]]
+        
+        let text = ["a","b","c"]
+        //define colors
+        //gradientLayer.colors = [UIColor.orange.cgColor, UIColor.blue.cgColor]
+        
+        //define locations of colors as NSNumbers in range from 0.0 to 1.0
+        //if locations not provided the colors will spread evenly
+        
+        //define frame
+        
         scrollView.contentSize = CGSize(width: view.frame.size.width * 5, height: scrollView.frame.size.height)
         scrollView.isPagingEnabled = true
-        let colors: [UIColor] = [.systemRed, .systemBlue, .systemPink, .systemGreen, .systemRed]
-        for x in 0..<5{
-            let page = UIView(frame: CGRect(x: CGFloat(x) * view.frame.size.width, y:0, width: view.frame.size.width, height: scrollView.frame.size.height))
-            page.backgroundColor = colors[x]
+
+        for x in 0..<2{
+            var gradientLayer = CAGradientLayer()
+            gradientLayer.colors = colors[x]
+            gradientLayer.locations = [0.0, 0.6, 0.8]
+
+            var page = UIView(frame: CGRect(x: CGFloat(x) * view.frame.size.width, y:0, width: view.frame.size.width, height: scrollView.frame.size.height))
+            //page.backgroundColor = colors[x]
+          
+            gradientLayer.frame = page.bounds
+            page.layer.insertSublayer(gradientLayer, at: 0)
+            let label = UILabel(frame: CGRect(x: 0, y: 0, width: 200, height: 21))
+            label.center = CGPoint(x: 160, y: 285)
+            label.textAlignment = .center
+            label.text = text[x]
+            scrollView.addSubview(label)
             scrollView.addSubview(page)
             
         }
